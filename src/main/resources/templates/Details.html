@@ -31,24 +31,13 @@
             }
 
             .pokedex {
-                width: 350px;
+                width: 750px;
                 background-color: #c62828;
                 border: 5px solid #b71c1c;
                 border-radius: 20px;
                 padding: 20px;
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
                 position: relative;
-            }
-
-            h1 {
-                text-align: center;
-                margin-bottom: 40px;
-                font-family: 'Sixtyfour', monospace;
-                font-size: 3.5em;
-                letter-spacing: 2px;
-                color: #f9f871;
-                text-shadow: 0 0 5px #000, 0 0 20px #f9f871, 0 0 30px #f9f871;
-                animation: glow 3s ease-in-out infinite alternate;
             }
 
             .pokedex::before {
@@ -62,6 +51,17 @@
                 border-radius: 50%;
                 border: 4px solid #fff;
                 box-shadow: 0 0 0 3px #1e88e5;
+            }
+
+            h1 {
+                text-align: center;
+                margin-bottom: 40px;
+                font-family: 'Sixtyfour', monospace;
+                font-size: 3.5em;
+                letter-spacing: 2px;
+                color: #f9f871;
+                text-shadow: 0 0 5px #000, 0 0 20px #f9f871, 0 0 30px #f9f871;
+                animation: glow 3s ease-in-out infinite alternate;
             }
 
             .screen {
@@ -125,6 +125,105 @@
                 text-align: center;
                 font-weight: bold;
             }
+
+            /* Nuevos estilos para las ubicaciones */
+            .details-container {
+                display: flex;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .pokemon-info {
+                flex: 1;
+            }
+
+            .location-info {
+                flex: 1;
+                background-color: rgba(33, 33, 33, 0.7);
+                border: 3px inset #888;
+                border-radius: 10px;
+                padding: 15px;
+                max-height: 420px;
+                overflow-y: auto;
+            }
+
+            .location-item {
+                margin-bottom: 15px;
+                padding: 10px;
+                background-color: rgba(66, 66, 66, 0.5);
+                border-radius: 8px;
+                border-left: 3px solid #ffca28;
+            }
+
+            .location-name {
+                font-weight: bold;
+                color: #ffca28;
+                margin-bottom: 8px;
+                font-size: 1.1em;
+            }
+
+            .encounter-method {
+                font-size: 0.9em;
+                color: #bdbdbd;
+                margin-left: 10px;
+                padding: 3px 0;
+            }
+
+            .encounter-chance {
+                font-size: 0.85em;
+                color: #42a5f5;
+                margin-left: 20px;
+                padding: 2px 0;
+            }
+
+            /* Scrollbar personalizada */
+            .location-info::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .location-info::-webkit-scrollbar-track {
+                background: rgba(66, 66, 66, 0.3);
+            }
+
+            .location-info::-webkit-scrollbar-thumb {
+                background-color: #ffca28;
+                border-radius: 4px;
+            }
+
+            /* Animaciones */
+            @keyframes bgAnimation {
+                0% {
+                    background-position: 0% 0%;
+                }
+                100% {
+                    background-position: 100% 100%;
+                }
+            }
+
+            @keyframes glow {
+                from {
+                    text-shadow: 0 0 5px #000, 0 0 20px #f9f871, 0 0 30px #f9f871;
+                }
+                to {
+                    text-shadow: 0 0 10px #000, 0 0 30px #f9f871, 0 0 40px #f9f871;
+                }
+            }
+
+            /* Responsive */
+            @media (max-width: 800px) {
+                .pokedex {
+                    width: 95%;
+                }
+
+                .details-container {
+                    flex-direction: column;
+                }
+
+                .location-info {
+                    max-height: 300px;
+                    margin-top: 20px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -138,45 +237,76 @@
                 </button>
             </div>
 
-            <div class="screen">
-                <img th:src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/' + ${pokemon.id} + '.gif'"
-                     th:alt="'Sprite de ' + ${pokemon.name}" />
+            <div class="details-container">
+                <div class="pokemon-info">
+                    <div class="screen">
+                        <img th:src="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/' + ${pokemon.id} + '.gif'"
+                             th:alt="'Sprite de ' + ${pokemon.name}" />
 
-                <div class="info">
-                    <p><strong>Numero:#</strong> <span th:text="${pokemon.id}"></span></p>
-                    <p><strong>Altura:</strong> <span th:text="${#numbers.formatDecimal(pokemon.height / 10.0, 1, 1)}"></span> M</p>
-                    <p><strong>Peso:</strong> <span th:text="${#numbers.formatDecimal(pokemon.weight / 10.0, 1, 1)}"></span> KG</p>
-                    <p><strong>Experiencia base:</strong> <span th:text="${pokemon.base_experience}"></span></p>
+                        <div class="info">
+                            <p><strong>Número:#</strong> <span th:text="${pokemon.id}"></span></p>
+                            <p><strong>Altura:</strong> <span th:text="${#numbers.formatDecimal(pokemon.height / 10.0, 1, 1)}"></span> M</p>
+                            <p><strong>Peso:</strong> <span th:text="${#numbers.formatDecimal(pokemon.weight / 10.0, 1, 1)}"></span> KG</p>
+                            <p><strong>Experiencia base:</strong> <span th:text="${pokemon.base_experience}"></span></p>
 
-                    <p class="section-title">Tipos:</p>
-                    <ul>
-                        <li th:each="tipo : ${pokemon.types}" th:text="${tipo.type.name}"></li>
-                    </ul>
+                            <p class="section-title">Tipos:</p>
+                            <ul>
+                                <li th:each="tipo : ${pokemon.types}" th:text="${tipo.type.name}"></li>
+                            </ul>
 
-                    <p class="section-title">Habilidades:</p>
-                    <ul>
-                        <li th:each="hab : ${pokemon.abilities}" th:text="${hab.ability.name}"></li>
-                    </ul>
+                            <p class="section-title">Habilidades:</p>
+                            <ul>
+                                <li th:each="hab : ${pokemon.abilities}" th:text="${hab.ability.name}"></li>
+                            </ul>
 
-                    <p class="section-title">Evolución:</p>
-                    <div th:if="${evolution != null}">
-                        <ul>
-                            <li th:text="${evolution.chain.species.name}"></li>
-                            <li th:each="evo1 : ${evolution.chain.evolves_to}" th:text="${evo1.species.name}"></li>
-                            <li th:each="evo1 : ${evolution.chain.evolves_to}">
+                            <p class="section-title">Evolución:</p>
+                            <div th:if="${evolution != null}">
                                 <ul>
-                                    <li th:each="evo2 : ${evo1.evolves_to}" th:text="${evo2.species.name}"></li>
+                                    <li th:text="${evolution.chain.species.name}"></li>
+                                    <li th:each="evo1 : ${evolution.chain.evolves_to}" th:text="${evo1.species.name}"></li>
+                                    <li th:each="evo1 : ${evolution.chain.evolves_to}">
+                                        <ul>
+                                            <li th:each="evo2 : ${evo1.evolves_to}" th:text="${evo2.species.name}"></li>
+                                        </ul>
+                                    </li>
                                 </ul>
-                            </li>
-                        </ul>
+                            </div>
+                            <div th:if="${evolution == null}">
+                                <p>Sin datos de evolución.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div th:if="${evolution == null}">
-                        <p>Sin datos de evolución.</p>
+                </div>
+
+                <div class="location-info" th:if="${not locationAreas.isEmpty()}">
+                    <h3 class="section-title">Ubicaciones</h3>
+                    <div th:each="area : ${locationAreas}">
+                        <div class="location-item">
+                            <div class="location-name" 
+                                 th:text="${#strings.capitalizeWords(#strings.replace(area.name, '-', ' '))}">
+                            </div>
+                            <div th:each="encounter : ${area.pokemon_encounters}">
+                                <div th:each="version : ${encounter.version_details}">
+                                    <div class="encounter-method">
+                                        <strong>Versión:</strong> 
+                                        <span th:text="${version.version.name}"></span>
+                                    </div>
+                                    <div th:each="detail : ${version.encounter_details}">
+                                        <div class="encounter-method">
+                                            <strong>Método:</strong> 
+                                            <span th:text="${detail.method.name}"></span>
+                                        </div>
+                                        <div class="encounter-chance">
+                                            <strong>Probabilidad:</strong> 
+                                            <span th:text="${detail.chance}"></span>%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-
 
             <a th:href="@{/PokemonWord}" class="btn">Volver al inicio</a>
         </div>

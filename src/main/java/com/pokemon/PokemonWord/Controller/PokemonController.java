@@ -1,17 +1,10 @@
 package com.pokemon.PokemonWord.Controller;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
@@ -33,60 +26,94 @@ public class PokemonController {
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(POKEAPI_URL + "pokemon?limit=53", Map.class);
             List<Map<String, String>> pokemons = (List<Map<String, String>>) response.getBody().get("results");
-
-            if (pokemons == null || pokemons.isEmpty()) {
-                model.addAttribute("error", "La lista de Pokémon está vacía");
-            } else {
-                model.addAttribute("pokemons", pokemons);
-                System.out.println("Pokémones cargados: " + pokemons.size()); // Debug
-            }
+            model.addAttribute("pokemons", pokemons != null ? pokemons : Collections.emptyList());
         } catch (Exception e) {
-            e.printStackTrace();
             model.addAttribute("error", "Error al consumir la API: " + e.getMessage());
         }
-
         return "Pokemones";
     }
 
     @GetMapping("/Details/{id}")
     public String getPokemonDetails(@PathVariable int id, Model model) {
-
         try {
             Map<String, Object> pokemonData = getApiData("pokemon/" + id);
             if (pokemonData == null) {
                 model.addAttribute("error", "No se encontró el Pokémon");
                 return "Details";
             }
-            
-            //Obtencion del sonido Pokemon
+
             String name = (String) pokemonData.get("name");
-            String cryUrl = "https://play.pokemonshowdown.com/audio/cries/" + name + ".mp3";
-            model.addAttribute("cryUrl", cryUrl);
-
-
             model.addAttribute("pokemon", pokemonData);
+            model.addAttribute("cryUrl", "https://play.pokemonshowdown.com/audio/cries/" + name + ".mp3");
 
-            Map<String, Object> speciesData = getApiData(((Map<String, String>) pokemonData.get("species")).get("url"));
-            model.addAttribute("species", speciesData);
+            // Obtener datos de especie y evolución
+            processSpeciesData(pokemonData, model);
 
-            if (speciesData != null && speciesData.containsKey("evolution_chain")) {
-                Map<String, String> evolutionChain = (Map<String, String>) speciesData.get("evolution_chain");
-                Map<String, Object> evolutionData = getApiData(evolutionChain.get("url"));
-                model.addAttribute("evolution", evolutionData);
-            }
+            // Obtener ubicaciones con detalles completos
+            model.addAttribute("locationAreas", getPokemonLocations(id, name));
 
         } catch (Exception e) {
-            e.printStackTrace();
             model.addAttribute("error", "Error al obtener el Pokémon: " + e.getMessage());
         }
-
         return "Details";
     }
 
-    private Map<String, Object> getApiData(String endpointOrUrl) {
-        // Si la cadena empieza con "http", es una URL completa, sino un endpoint relativo
-        String url = endpointOrUrl.startsWith("http") ? endpointOrUrl : POKEAPI_URL + endpointOrUrl;
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        return response.getBody();
+    private void processSpeciesData(Map<String, Object> pokemonData, Model model) {
+        Map<String, Object> speciesData = getApiData(((Map<String, Object>) pokemonData.get("species")).get("url").toString());
+        model.addAttribute("species", speciesData);
+
+        if (speciesData != null && speciesData.containsKey("evolution_chain")) {
+            Map<String, Object> evolutionData = getApiData(((Map<String, Object>) speciesData.get("evolution_chain")).get("url").toString());
+            model.addAttribute("evolution", evolutionData);
+        }
+    }
+
+    private List<Map<String, Object>> getPokemonLocations(int pokemonId, String pokemonName) {
+        try {
+            List<Map<String, Object>> encounters = getApiDataAsList("pokemon/" + pokemonId + "/encounters");
+            List<Map<String, Object>> locationAreas = new ArrayList<>();
+
+            for (Map<String, Object> encounter : encounters) {
+                Map<String, Object> locationArea = (Map<String, Object>) encounter.get("location_area");
+                if (locationArea != null) {
+                    Map<String, Object> areaDetails = getApiData(locationArea.get("url").toString());
+                    if (areaDetails != null) {
+                        locationAreas.add(processLocationArea(areaDetails, pokemonName));
+                    }
+                }
+            }
+            return locationAreas;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private Map<String, Object> processLocationArea(Map<String, Object> areaDetails, String pokemonName) {
+        Map<String, Object> locationData = new LinkedHashMap<>();
+        locationData.put("name", areaDetails.get("name"));
+
+        List<Map<String, Object>> filteredEncounters = new ArrayList<>();
+        List<Map<String, Object>> pokemonEncounters = (List<Map<String, Object>>) areaDetails.get("pokemon_encounters");
+
+        if (pokemonEncounters != null) {
+            for (Map<String, Object> encounter : pokemonEncounters) {
+                if (pokemonName.equals(((Map<String, Object>) encounter.get("pokemon")).get("name"))) {
+                    filteredEncounters.add(encounter);
+                }
+            }
+        }
+
+        locationData.put("pokemon_encounters", filteredEncounters);
+        return locationData;
+    }
+
+    private Map<String, Object> getApiData(String endpoint) {
+        String url = endpoint.startsWith("http") ? endpoint : POKEAPI_URL + endpoint;
+        return restTemplate.getForEntity(url, Map.class).getBody();
+    }
+
+    private List<Map<String, Object>> getApiDataAsList(String endpoint) {
+        String url = endpoint.startsWith("http") ? endpoint : POKEAPI_URL + endpoint;
+        return restTemplate.getForEntity(url, List.class).getBody();
     }
 }

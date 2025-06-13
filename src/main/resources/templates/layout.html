@@ -180,24 +180,7 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item dropdown" sec:authorize="hasRole('Programador')">
-                            <a class="nav-link dropdown-toggle" href="#" id="historialDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-clock-history"></i> Historial
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="historialDropdown">
-                                <li th:if="${#lists.isEmpty(historialPokemones)}">
-                                    <span class="dropdown-item-text text-muted">Sin historial</span>
-                                </li>
-                                <li th:each="poke : ${historialPokemones}">
-                                    <a class="dropdown-item" th:href="@{/Details/{name}(name=${poke})}" th:text="${poke}">Pokémon</a>
-                                </li>
-                            </ul>
-                        </li>
-
-
-                        <li class="nav-item" sec:authorize="hasRole('Admin') or hasRole('Programador')">
-                            <a class="nav-link" th:href="@{/Usuario/CargaMasiva}">
-                                <i class="bi bi-database-fill"></i> Carga Masiva
-                            </a>
+                            
                         </li>
                     </ul>
                 </div>
