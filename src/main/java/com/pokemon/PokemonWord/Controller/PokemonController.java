@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
-@RequestMapping("/PokemonWord")
+@RequestMapping("/Inicio")
 public class PokemonController {
 
     private static final String POKEAPI_URL = "https://pokeapi.co/api/v2/";
@@ -19,12 +19,19 @@ public class PokemonController {
     }
 
     @GetMapping
-    public String index(Model model) {
+    public String inicio(Model model){
+        model.addAttribute("darkMode", true);
+        model.addAttribute("pageTitle", "Inicio");
+        return "Inicio";
+    }
+    
+    @GetMapping("/Pokedex")
+    public String poedex(Model model) {
         model.addAttribute("darkMode", true);
         model.addAttribute("pageTitle", "Mundo Pokemon");
 
         try {
-            ResponseEntity<Map> response = restTemplate.getForEntity(POKEAPI_URL + "pokemon?limit=53", Map.class);
+            ResponseEntity<Map> response = restTemplate.getForEntity(POKEAPI_URL + "pokemon?limit=12", Map.class);
             List<Map<String, String>> pokemons = (List<Map<String, String>>) response.getBody().get("results");
             model.addAttribute("pokemons", pokemons != null ? pokemons : Collections.emptyList());
         } catch (Exception e) {

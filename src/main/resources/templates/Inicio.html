@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Escena Pokémon Nocturna con Movimiento</title>
+<style>
+  /* Variables */
+  :root {
+    --circle-size: 450px;
+    --moon-size: 70px;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #fff8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
+
+  .scene {
+    position: relative;
+    width: var(--circle-size);
+    height: var(--circle-size);
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(to top, #68b5f7 15%, #b286d5 45%, #dcb1c8 75%, #ffe8d0 100%);
+    box-shadow: 0 0 25px rgba(0,0,0,0.1);
+  }
+
+  /* Montañas (simplificadas) */
+  .mountains {
+    position: absolute;
+    bottom: 100px;
+    width: 100%;
+    height: 150px;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .mountain {
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 80px solid #6ea0d9;
+    filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1));
+  }
+
+  /* Colinas con gradiente y movimiento sutil */
+  .hills {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 120px;
+    background:
+      radial-gradient(circle at 40% 40%, #4da7b3, transparent 60%),
+      radial-gradient(circle at 70% 80%, #4d9bb3, transparent 60%);
+    animation: hillsMove 15s linear infinite alternate;
+  }
+
+  @keyframes hillsMove {
+    0% { background-position: 40% 40%, 70% 80%; }
+    100% { background-position: 45% 42%, 75% 78%; }
+  }
+
+  /* Luna */
+  .moon {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--moon-size);
+    height: var(--moon-size);
+    background: radial-gradient(circle at 30% 30%, #fff9d1, #f2d88f);
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff9d1;
+  }
+
+  /* Estrellas animadas */
+  .stars {
+    position: absolute;
+    top: 10%;
+    width: 100%;
+    height: 50%;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    background: #fff8b3;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 4px #fff8b3);
+    animation: twinkle 3s infinite alternate;
+  }
+
+  /* Estrellas de diferentes tamaños y posiciones */
+  .star:nth-child(1) {
+    width: 6px;
+    height: 6px;
+    top: 20%;
+    left: 30%;
+    animation-delay: 0s;
+  }
+
+  .star:nth-child(2) {
+    width: 4px;
+    height: 4px;
+    top: 40%;
+    left: 40%;
+    animation-delay: 1.5s;
+  }
+
+  .star:nth-child(3) {
+    width: 3px;
+    height: 3px;
+    top: 25%;
+    left: 60%;
+    animation-delay: 0.7s;
+  }
+
+  .star:nth-child(4) {
+    width: 5px;
+    height: 5px;
+    top: 30%;
+    left: 80%;
+    animation-delay: 2s;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* Pokémon (simplificado con colores y posiciones) */
+  .pokemon {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 40px;
+  }
+
+  .bulbasaur, .pikachu {
+    width: 80px;
+    height: 80px;
+    border-radius: 50% 50% 60% 60% / 60% 60% 80% 80%;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+    filter: drop-shadow(0 3px 1px rgba(0,0,0,0.2));
+  }
+
+  .bulbasaur {
+    background-image: url('/mnt/data/43a3933d-218e-45fa-b224-07adcccfb8f7.png'); /* Aquí pon la ruta del Bulbasaur */
+    animation: bulbaBreathe 3s ease-in-out infinite;
+  }
+
+  .pikachu {
+    background-image: url('https://raw.githubusercontent.com/acupoftee/pokemon-word/master/assets/pikachu.png');
+    animation: pikaTailMove 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes bulbaBreathe {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes pikaTailMove {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-4px) rotate(10deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="scene" role="img" aria-label="Escena Pokémon al atardecer con luna y estrellas">
+    <div class="moon"></div>
+    <div class="stars">
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+    </div>
+    <div class="mountains">
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+      <div class="mountain"></div>
+    </div>
+    <div class="hills"></div>
+    <div class="pokemon">
+      <div class="bulbasaur"></div>
+      <div class="pikachu"></div>
+    </div>
+  </div>
+</body>
+</html>
